@@ -1,0 +1,88 @@
+ME="$(whoami)"
+readonly ME
+
+# (start with a space to be ignored in history)
+alias sudo='sudo '  # enable simple aliases to be sudo'ed.
+alias _='sudo'
+alias grep='grep --color=always'
+alias fgrep='fgrep --color=always'
+alias cd..=' cd ..'
+alias path="echo -e ${PATH//:/\\n}" # print each PATH entry on a separate line.
+alias mkdir='mkdir -p'  # always create parent-dirs, if needed.
+alias chown='chown --preserve-root' # safety features.
+alias chmod='chmod --preserve-root'
+alias chgrp='chgrp --preserve-root'
+
+# config shortcuts.
+alias aliasconfig='vim ~/.aliases'
+alias sshconfig='vim /etc/ssh/sshd_config'
+alias zshconfig='vim ~/.zshrc'
+alias vimrc='vim ~/.vimrc'
+
+# quick reload.
+alias reload_zsh_profile='source ~/.zshrc'
+
+# process stuffs.
+alias pgr='ps aux|grep '
+alias psg='pgr'
+
+alias tbc="fgrep -Irn --exclude-dir={cache,vendor,min} --exclude={'*.svg','*.min.js'} 'TBC' *"
+alias todo="fgrep -Irn --exclude-dir={cache,vendor,min} --exclude={'*.svg','*.min.js'} 'TODO' *"
+alias changed="cvs -Q status -l | grep -i 'locally'"
+alias tmuxs="tmux -S /tmp/tmux-for-han new -s han-0"
+alias find1="find . -iname "
+alias findd='find . -type d -iname '
+alias findf='find . -type f -iname '
+alias finddr='find / -type d -iname '
+alias findfr='find / -type f -iname '
+alias dupes='find -not -empty -type f -printf "%s\n" | sort -rn | uniq -d | xargs -I{} -n1 find -type f -size {}c -print0 | xargs -0 md5sum | sort | uniq -w32 --all-repeated=separate'	# number of duplicate files. compare size, then md5.
+
+alias lsnewestphp='ls -lt  **/*.php(.om[1,20])'	# list 20 newest php files anywhere in directory hierarchy.
+alias lsd="ll -Ad */"		# list directories.
+alias ls0='ls *(.L0)'		# list empty files in current dir.
+alias ls0d='ls -ld **/*(/^F)'	# list empty subdirs recursively.
+alias dirsize='du -skh *(/)'	# list directory sizes.
+alias countr='ls -1|wc -l'	# number of files in dir + subdir.
+
+alias curld='curl -O '		# curl download remote name.
+
+# logs check.
+alias logae='_ tail -n 20 /var/log/apache2/error.log'	# show apache error log.
+alias logaa='_ tail -n 20 /var/log/apache2/access.log'	# show apache access log.
+alias logsql='_ tail -n 20 /var/log/mysql/error.log'	# show mysql error log.
+alias version='lsb_release -a'
+
+# global aliases. http://zzapper.co.uk/zshtips.html
+alias -g ND='*(/om[1])'		# newest directory.
+alias -g NF='*(.om[1])'		# newest file.
+alias -g M='| more'
+alias -g L='| less'
+alias -g ...='../..'
+alias -g ....='../../..'
+alias -g .....='../../../..'
+
+# print line from file.
+line(){
+	# $1=line number, $2=file.
+	sed -n "$1{p;q}" $2
+}
+alias line=line
+
+# mass rename for same name but different extensions.
+rename1(){
+	# $1=from filename; $2=to filename.
+	for i in "$1".*; do mv "$i" "$2.${i##*.}"; done
+}
+alias rename1=rename1
+# mass rename to remove certain word.
+rename2(){
+	# $1=regex word. current directory only. non-recursive.
+	# eg- A_[xxx].zip B_[xxx].zip ==> rename2 '_\[xxx\]'  ==> A.zip B.zip
+	for a in *; do mv "$a" "${a/$1}"; done
+}
+alias rename2=rename2
+
+# remove .Zone-Identifier extension files. https://blog.realhe.ro/how-to-get-rid-of-zone-identifier-files/
+removeZID(){
+  find "$1" -type f -name "*:Zone.Identifier" -exec rm -f {} \;
+}
