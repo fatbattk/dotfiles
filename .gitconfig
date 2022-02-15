@@ -34,3 +34,6 @@
 
   # Enable the filesystem cache (for git bash | windows)
   fscache = true
+
+  # default branch name.
+  defaultBranch = main
