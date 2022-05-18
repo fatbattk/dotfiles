@@ -26,10 +26,11 @@ alias reload_zsh_profile='source ~/.zshrc'
 alias pgr='ps aux|grep '
 alias psg='pgr'
 
-alias tbc="fgrep -Irn --exclude-dir={cache,vendor,min} --exclude={'*.svg','*.min.js'} 'TBC' *"
-alias todo="fgrep -Irn --exclude-dir={cache,vendor,min} --exclude={'*.svg','*.min.js'} 'TODO' *"
+alias mygrep="fgrep -Irn --exclude-dir={cache,vendor,min,log} --exclude={'*.svg','*.min.js','*.lock'}"
+alias tbc="mygrep 'TBC' *"
+alias todo="mygrep 'TODO' *"
 alias changed="cvs -Q status -l | grep -i 'locally'"
-alias tmuxs="tmux -S /tmp/tmux-for-han new -s han-0"
+alias tmuxs="tmux -S /tmp/tmux-sess new -s sess-0"
 alias find1="find . -iname "
 alias findd='find . -type d -iname '
 alias findf='find . -type f -iname '
@@ -51,6 +52,8 @@ alias logae='_ tail -n 20 /var/log/apache2/error.log'	# show apache error log.
 alias logaa='_ tail -n 20 /var/log/apache2/access.log'	# show apache access log.
 alias logsql='_ tail -n 20 /var/log/mysql/error.log'	# show mysql error log.
 alias version='lsb_release -a'
+alias jc='journalctl '
+alias sc='systemctl '
 
 # global aliases. http://zzapper.co.uk/zshtips.html
 alias -g ND='*(/om[1])'		# newest directory.
