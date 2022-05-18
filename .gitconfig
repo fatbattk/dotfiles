@@ -1,5 +1,4 @@
 [alias]
-
   # Amend the currently staged files to the latest commit
   amend = commit --amend --reuse-message=HEAD
 
@@ -17,6 +16,10 @@
   # Forcepush, but fail if the remote has been updated since you last pulled.
   # Prevents clobbering other people's commits on the same branch unless you really, really want to.
   forcepush = push --force-with-lease
+  please = push --force-with-lease
+
+  # We wanna grab those pesky un-added files!
+  stash-all = stash save --include-untracked
 
   # reset
   unstage = reset HEAD              # remove files from index (tracking)
@@ -27,13 +30,18 @@
   whitespace = warn
 
 [core]
-
   # Default editor for commit messages and other inputs
   # Even when EDITOR is set to something else
-  editor=vim
+  editor = vim
 
   # Enable the filesystem cache (for git bash | windows)
   fscache = true
 
   # default branch name.
   defaultBranch = main
+
+[user]
+  name = FatBat
+
+[github]
+  username = fatbattk
