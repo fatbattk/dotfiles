@@ -9,6 +9,10 @@
   ll = !git --no-pager log --graph --all --decorate --pretty=format:'%C(auto)%h%d  %ad %C(red bold)(%ar%C(red bold))%Creset  %Creset%C(magenta)%an %Creset<%ae>  %C(white bold)%<(80,trunc)%s' --date=iso
   l = !git --no-pager log -n 40 --graph --pretty=format:'%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%cr) %C(blue bold)<%an>%Creset'
 
+  # Show verbose output about tags, branches or remotes
+  branches = branch -av
+  remotes = remote -v
+
   # Remove branches that have already been merged with master
   # a.k.a. ‘delete merged’
   dm = "!git branch --merged | grep -v '\\*' | xargs -n 1 git branch -d"
@@ -16,7 +20,7 @@
   # Forcepush, but fail if the remote has been updated since you last pulled.
   # Prevents clobbering other people's commits on the same branch unless you really, really want to.
   forcepush = push --force-with-lease
-  please = push --force-with-lease
+  please = push --force-with-lease --force-if-includes
 
   # We wanna grab those pesky un-added files!
   stash-all = stash save --include-untracked
@@ -34,11 +38,22 @@
   # Even when EDITOR is set to something else
   editor = vim
 
+  # Make `git rebase` safer on OS X
+  # More info: <http://www.git-tower.com/blog/make-git-rebase-safe-on-osx/>
+  trustctime = false
+
+  # Prevent showing files whose names contain non-ASCII symbols as unversioned.
+  # http://michael-kuehnel.de/git/2014/11/21/git-mac-osx-and-german-umlaute.html
+  precomposeunicode = false
+
   # Enable the filesystem cache (for git bash | windows)
   fscache = true
 
   # default branch name.
   defaultBranch = main
+
+[push]
+  autoSetupRemote = true
 
 [user]
   name = FatBat
