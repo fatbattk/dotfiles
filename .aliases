@@ -47,6 +47,9 @@ alias countr='ls -1|wc -l'	# number of files in dir + subdir.
 
 alias curld='curl -O '		# curl download remote name.
 
+# git overwrites.
+alias gb='git branch -vv'
+
 # logs check.
 alias logae='_ tail -n 20 /var/log/apache2/error.log'	# show apache error log.
 alias logaa='_ tail -n 20 /var/log/apache2/access.log'	# show apache access log.
