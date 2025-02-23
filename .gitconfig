@@ -13,7 +13,7 @@
   branches = branch -av
   remotes = remote -v
 
-  # Remove branches that have already been merged with master
+  # Remove branches that have already been merged with main. Has issues with graphite.
   # a.k.a. ‘delete merged’
   dm = "!git branch --merged | grep -v '\\*' | xargs -n 1 git branch -d"
 
@@ -32,6 +32,10 @@
 [apply]
   # detect whitespace errors when applying a patch
   whitespace = warn
+
+[branch]
+  # Sort by recent branches vs default alphabetical.
+  sort = -committerdate
 
 [core]
   # Default editor for commit messages and other inputs
