@@ -75,7 +75,7 @@ COMPLETION_WAITING_DOTS="true"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git colored-man-pages colorize extract dirhistory sudo)
+plugins=(git colored-man-pages colorize extract dirhistory sudo eza)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -86,12 +86,8 @@ source $ZSH/oh-my-zsh.sh
 # You may need to manually set your language environment
 # export LANG=en_US.UTF-8
 
-# Preferred editor for local and remote sessions
-if [[ -n $SSH_CONNECTION ]]; then
-  export EDITOR='vim'
-else
-  export EDITOR='mvim'
-fi
+# Preferred editor.
+export EDITOR='vim'
 
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
@@ -112,9 +108,23 @@ if [ -e $HOME/.nix-profile/etc/profile.d/nix.sh ]; then . $HOME/.nix-profile/etc
 
 [[ -f /opt/dev/sh/chruby/chruby.sh ]] && type chruby >/dev/null 2>&1 || chruby () { source /opt/dev/sh/chruby/chruby.sh; chruby "$@"; }
 
-export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
-BREW_DIR=$(which brew)
-[[ -x "$BREW_DIR/brew" ]] && eval $($BREW_DIR/brew shellenv)
+# path config.
+add_path "$HOME/.yarn/bin"
+add_path "$HOME/.config/yarn/global/node_modules/.bin"
+
+# history config.
+export HISTSIZE=50000
+export SAVEHIST=50000
+export HISTIGNORE="ls:ll:la:lla:pwd:exit:clear:z"
+setopt SHARE_HISTORY INC_APPEND_HISTORY HIST_IGNORE_DUPS
+
+# tools config.
+[ -f "$HOME/tools.sh" ] && source "$HOME/tools.sh"
+
+# Mac specific configs.
+if [[ "$ZSH_HOST_OS" == "darwin" ]]; then
+  [ -f "$HOME/mac.sh" ] && source "$HOME/mac.sh"
+fi
 
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
