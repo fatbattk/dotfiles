@@ -92,3 +92,21 @@ alias rename2=rename2
 removeZID(){
   find "$1" -type f -name "*:Zone.Identifier" -exec rm -f {} \;
 }
+
+# alternative to reload_zsh_profile.
+.reload() {
+  source ~/.zshrc
+}
+
+# Only allow unique entries in the PATH variable.
+# This function updates PATH by removing duplicates.
+add_path() {
+  if ! [[ ":$PATH:" == *":$1:"* ]]; then
+    export PATH="$1:$PATH"
+  fi
+}
+
+# Function to check if a command exists
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
