@@ -18,6 +18,7 @@ alias aliasconfig='vim ~/.aliases'
 alias sshconfig='vim /etc/ssh/sshd_config'
 alias zshconfig='vim ~/.zshrc'
 alias vimrc='vim ~/.vimrc'
+alias ghosttyconfig='ghostty +edit-config'
 
 # quick reload.
 alias reload_zsh_profile='source ~/.zshrc'
@@ -43,12 +44,87 @@ alias lsd="ll -Ad */"		# list directories.
 alias ls0='ls *(.L0)'		# list empty files in current dir.
 alias ls0d='ls -ld **/*(/^F)'	# list empty subdirs recursively.
 alias dirsize='du -skh *(/)'	# list directory sizes.
+alias freespace='df -hl'	# show filesystem free space.
+alias dfree='freespace'
 alias countr='ls -1|wc -l'	# number of files in dir + subdir.
 
 alias curld='curl -O '		# curl download remote name.
 
 # git overwrites.
 alias gb='git branch -vv'
+alias gbv='gb'
+alias gwtl='git worktree list'
+gwtaa() {
+  # $1=repo branch name.
+  if [ -d "../$1" ]; then
+    echo "❌ Error: Directory ../$1 already exists"
+    return 1
+  fi
+  git worktree add "../$1" "$1" && cd "../$1" || {
+    echo "❌ Failed to create worktree for $1"
+    return 1
+  }
+}
+gwtpr() {
+  # $1=pr number; $2=remote name.
+  local pr="$1"
+  local remote="${2:-origin}"
+  local branch=$(gh pr view "$pr" --json headRefName -q .headRefName 2>/dev/null)
+  git fetch "$remote" "$branch" || {
+    echo "❌ Error: Failed to fetch branch $branch from $remote"
+    return 1
+  }
+  gwtaa "$branch" && echo "✅ Successfully made new worktree for PR #$pr: $branch"
+}
+clean-local-branches() {
+  local main_branch="main"
+  git rev-parse --verify "$main_branch" &>/dev/null || main_branch="master"
+
+  local -A merged_branches
+  while IFS= read -r b; do
+    [[ -n "$b" ]] && merged_branches[$b]=1
+  done < <(git branch --merged "$main_branch" 2>/dev/null | sed 's/^[* ]*//')
+
+  local branches_info
+  branches_info=$(git for-each-ref \
+    --format='%(refname:short)|%(objectname:short)|%(contents:subject)' \
+    refs/heads/ | grep -vE "^($main_branch|master|develop|rc|unstable)\|")
+
+  [[ -z "$branches_info" ]] && { echo "No branches to clean up!"; return 0; }
+
+  local branch_count=$(echo "$branches_info" | wc -l | tr -d ' ')
+  echo "Found $branch_count branches to review\n"
+
+  local deleted_count=0 kept_count=0
+
+  while IFS='|' read -r branch hash subject; do
+    local merged=""
+    [[ -n "${merged_branches[$branch]}" ]] && merged=" ✓merged"
+
+    print -P "Branch: %K{magenta}%F{white}%B $branch %b%f%k$merged"
+    echo "$hash $subject"
+
+    echo -n "Delete? [y/N/q]: "
+    read -k 1 answer
+    echo
+
+    case $answer in
+      y|Y)
+        git branch -d "$branch" 2>/dev/null && ((deleted_count++)) || {
+          echo -n "Force delete? [y/N]: "
+          read -k 1 force
+          echo
+          [[ $force == "y" ]] && git branch -D "$branch" && ((deleted_count++)) || ((kept_count++))
+        }
+        ;;
+      q|Q) break ;;
+      *) ((kept_count++)) ;;
+    esac
+    echo
+  done <<< "$branches_info"
+
+  echo "\nDeleted: $deleted_count | Kept: $kept_count"
+}
 
 # logs check.
 alias logae='_ tail -n 20 /var/log/apache2/error.log'	# show apache error log.

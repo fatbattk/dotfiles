@@ -10,6 +10,7 @@
   l = !git log -n 25 --graph --pretty=format:'%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%cr) %C(blue bold)<%an>%Creset'
 
   # Show verbose output about tags, branches or remotes
+  tags = tag -l
   branches = branch -av
   remotes = remote -v
 
@@ -58,6 +59,9 @@
 
 [push]
   autoSetupRemote = true
+
+[rerere]
+  enabled = true
 
 [user]
   name = FatBat
