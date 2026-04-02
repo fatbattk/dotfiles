@@ -1,0 +1,10 @@
+theme = Github Dark High Contrast
+cursor-style-blink = true
+scrollback-limit = 90000
+bell-features = border
+background-opacity = 0.99
+quit-after-last-window-closed = true
+macos-titlebar-style = tabs
+macos-icon = retro
+copy-on-select = clipboard
+keybind = shift+enter=text:\n
