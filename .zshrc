@@ -103,20 +103,26 @@ export EDITOR='vim'
 # alias sudo='sudo '
 [ -f $HOME/.aliases ] && source $HOME/.aliases
 
-[ -f /opt/dev/dev.sh ] && source /opt/dev/dev.sh
-if [ -e $HOME/.nix-profile/etc/profile.d/nix.sh ]; then . $HOME/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
-
-[[ -f /opt/dev/sh/chruby/chruby.sh ]] && type chruby >/dev/null 2>&1 || chruby () { source /opt/dev/sh/chruby/chruby.sh; chruby "$@"; }
+if [ -e $HOME/.nix-profile/etc/profile.d/nix.sh ]; then
+  . $HOME/.nix-profile/etc/profile.d/nix.sh
+fi
 
 # path config.
 add_path "$HOME/.yarn/bin"
 add_path "$HOME/.config/yarn/global/node_modules/.bin"
 
 # history config.
+export HISTFILE=~/.zsh_history
 export HISTSIZE=50000
 export SAVEHIST=50000
-export HISTIGNORE="ls:ll:la:lla:pwd:exit:clear:z"
+HISTORY_IGNORE="(ls|ll|la|lla|l|pwd|exit|clear|z)"
 setopt SHARE_HISTORY INC_APPEND_HISTORY HIST_IGNORE_DUPS
+
+# arrow-key history prefix search: type partial command, press up/down to match.
+bindkey '\eOA' history-beginning-search-backward
+bindkey '\e[A' history-beginning-search-backward
+bindkey '\eOB' history-beginning-search-forward
+bindkey '\e[B' history-beginning-search-forward
 
 # tools config.
 [ -f "$HOME/tools.sh" ] && source "$HOME/tools.sh"
@@ -127,4 +133,13 @@ if [[ "$ZSH_HOST_OS" == "darwin" ]]; then
 fi
 
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+if [ -s "$NVM_DIR/nvm.sh" ]; then
+  nvm() {
+    unfunction nvm node npm npx 2>/dev/null
+    \. "$NVM_DIR/nvm.sh"
+    nvm "$@"
+  }
+  node() { unfunction nvm node npm npx 2>/dev/null; \. "$NVM_DIR/nvm.sh"; node "$@"; }
+  npm() { unfunction nvm node npm npx 2>/dev/null; \. "$NVM_DIR/nvm.sh"; npm "$@"; }
+  npx() { unfunction nvm node npm npx 2>/dev/null; \. "$NVM_DIR/nvm.sh"; npx "$@"; }
+fi

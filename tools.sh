@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/bin/zsh
 
 # Generic package installer function.
 install_package() {
     local package_name=$1
-    
+
     if [[ "$ZSH_HOST_OS" == "darwin" ]]; then
         if command_exists brew; then
             brew install "$package_name"
@@ -36,6 +36,18 @@ fi
 if ! command_exists fzf; then
     # https://github.com/junegunn/fzf?tab=readme-ov-file#installation
     missing_packages+=("fzf")
+fi
+
+if ! command_exists gh; then
+    missing_packages+=("gh")
+fi
+
+if ! command_exists bat && ! command_exists batcat; then
+    missing_packages+=("bat")
+fi
+
+if ! command_exists rg; then
+    missing_packages+=("ripgrep")
 fi
 
 # Install any missing packages.

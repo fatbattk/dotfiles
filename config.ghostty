@@ -1,6 +1,6 @@
 theme = Github Dark High Contrast
 cursor-style-blink = true
-scrollback-limit = 90000
+scrollback-limit = 120000000
 bell-features = border
 background-opacity = 0.99
 quit-after-last-window-closed = true

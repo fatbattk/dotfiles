@@ -9,9 +9,11 @@ alias fgrep='fgrep --color=always'
 alias cd..=' cd ..'
 alias path="echo -e ${PATH//:/\\n}" # print each PATH entry on a separate line.
 alias mkdir='mkdir -p'  # always create parent-dirs, if needed.
-alias chown='chown --preserve-root' # safety features.
-alias chmod='chmod --preserve-root'
-alias chgrp='chgrp --preserve-root'
+if [[ "$(uname)" == "Linux" ]]; then
+  alias chown='chown --preserve-root'
+  alias chmod='chmod --preserve-root'
+  alias chgrp='chgrp --preserve-root'
+fi
 
 # config shortcuts.
 alias aliasconfig='vim ~/.aliases'
@@ -185,4 +187,32 @@ add_path() {
 # Function to check if a command exists
 command_exists() {
     command -v "$1" >/dev/null 2>&1
+}
+
+# Create an archive from a file or directory.
+# Usage: archive <output>.<ext> <input...>
+archive() {
+  case $1 in
+    *bz2)       bzip2 "${@:2}" ;;
+    *.gz)       gzip -c "${@:2}" > $1 ;;
+    *.tar)      tar -cvf $1 "${@:2}" ;;
+    *.tbz|*.tbz2|*.tar.bz2) tar -jcvf $1 "${@:2}" ;;
+    *.tgz|*.tar.gz)         tar -zcvf $1 "${@:2}" ;;
+    *.zip|*.ZIP)            zip -r $1 "${@:2}" ;;
+    *)          echo "'${@:2}' cannot be archived via archive()" ;;
+  esac
+}
+
+# Determine size of a file or total size of a directory.
+fs() {
+  if du -b /dev/null > /dev/null 2>&1; then
+    local arg=-sbh
+  else
+    local arg=-sh
+  fi
+  if [[ -n "$@" ]]; then
+    du $arg -- "$@"
+  else
+    du $arg .[^.]* *
+  fi
 }

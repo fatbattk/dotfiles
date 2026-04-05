@@ -24,7 +24,7 @@
   please = push --force-with-lease --force-if-includes
 
   # We wanna grab those pesky un-added files!
-  stash-all = stash save --include-untracked
+  stash-all = stash push --include-untracked
 
   # reset
   unstage = reset HEAD              # remove files from index (tracking)
@@ -54,6 +54,7 @@
   # Enable the filesystem cache (for git bash | windows)
   fscache = true
 
+[init]
   # default branch name.
   defaultBranch = main
 
