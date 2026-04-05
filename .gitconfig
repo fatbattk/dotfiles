@@ -38,6 +38,22 @@
   # Sort by recent branches vs default alphabetical.
   sort = -committerdate
 
+[color "branch"]
+  current = yellow reverse
+  local = yellow
+  remote = green
+
+[color "diff"]
+  meta = yellow bold
+  frag = magenta bold
+  old = red
+  new = green
+
+[color "status"]
+  added = yellow
+  changed = green
+  untracked = cyan
+
 [core]
   # Default editor for commit messages and other inputs
   # Even when EDITOR is set to something else
@@ -53,10 +69,30 @@
 
   # Enable the filesystem cache (for git bash | windows)
   fscache = true
+  # use OS-native line endings
+  eol = native
+  # convert CRLF to LF on commit, leave LF on checkout
+  autocrlf = input
+  # warn on irreversible CRLF conversion
+  safecrlf = true
+  # case-sensitive filenames (avoids silent renames)
+  ignorecase = false
+  # global gitignore for OS/editor junk
+  excludesfile = ~/.gitignore_global
+
+[diff]
+  # detect copies in addition to renames
+  renames = copies
+  # better diffs for code with moved blocks
+  algorithm = patience
 
 [init]
   # default branch name.
   defaultBranch = main
+
+[pull]
+  # no surprise merge commits, forces explicit rebase decision
+  ff = only
 
 [push]
   autoSetupRemote = true

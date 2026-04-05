@@ -124,12 +124,18 @@ bindkey '\e[A' history-beginning-search-backward
 bindkey '\eOB' history-beginning-search-forward
 bindkey '\e[B' history-beginning-search-forward
 
-# tools config.
-[ -f "$HOME/tools.sh" ] && source "$HOME/tools.sh"
+# Resolve dotfiles directory from this symlinked .zshrc.
+if [ -L "$HOME/.zshrc" ]; then
+  DOTFILES_DIR="$(dirname "$(readlink "$HOME/.zshrc")")"
+else
+  DOTFILES_DIR="$HOME/dotfiles"
+fi
 
+# tools config.
+[ -f "$DOTFILES_DIR/tools.sh" ] && source "$DOTFILES_DIR/tools.sh"
 # Mac specific configs.
 if [[ "$ZSH_HOST_OS" == "darwin" ]]; then
-  [ -f "$HOME/mac.sh" ] && source "$HOME/mac.sh"
+  [ -f "$DOTFILES_DIR/mac.sh" ] && source "$DOTFILES_DIR/mac.sh"
 fi
 
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
