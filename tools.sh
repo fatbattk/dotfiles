@@ -1,4 +1,5 @@
 #!/bin/zsh
+# Package bootstrap. Sourced by install.sh only, never by .zshrc: it installs things.
 
 # Generic package installer function.
 install_package() {

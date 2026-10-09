@@ -1,0 +1,6 @@
+# omp takes this lock on the resolved (symlinked) config path.
+omp/config.yml.lock
+
+# Python bytecode from the omp extension tests.
+__pycache__/
+*.py[cod]

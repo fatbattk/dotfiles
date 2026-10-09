@@ -38,6 +38,12 @@
   # Sort by recent branches vs default alphabetical.
   sort = -committerdate
 
+  # Only set an upstream when it has the same name as the local branch. Without this,
+  # branching off a remote ref (`git switch -c foo origin/main`) points foo's upstream at
+  # origin/main, and push.default=simple then refuses to push. Lets push.autoSetupRemote
+  # below create origin/foo on first push instead.
+  autoSetupMerge = simple
+
 [color "branch"]
   current = yellow reverse
   local = yellow
@@ -86,9 +92,16 @@
   # better diffs for code with moved blocks
   algorithm = patience
 
+[fetch]
+  # Delete local origin/* tracking refs when the remote branch is gone.
+  prune = true
+
 [init]
   # default branch name.
   defaultBranch = main
+
+[merge]
+  conflictStyle = zdiff3
 
 [pull]
   # no surprise merge commits, forces explicit rebase decision
@@ -96,6 +109,19 @@
 
 [push]
   autoSetupRemote = true
+
+[rebase]
+  # Stash dirty worktree+index before a rebase, pop it after. Lets `gpom` run on a dirty tree.
+  autoStash = true
+
+  # git 2.38+. Move local branch refs sitting on replayed commits to the rewritten commits,
+  # so a raw `git rebase` on the tip of a local stack carries the whole stack instead of
+  # orphaning the parents.
+  updateRefs = true
+
+  # Reorder commits whose subject starts with `fixup!`/`squash!` next to the commit they name,
+  # pre-marked `fixup`, so `rebase -i` needs no hand-editing.
+  autoSquash = true
 
 [rerere]
   enabled = true

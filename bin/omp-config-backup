@@ -1,0 +1,132 @@
+#!/usr/bin/env zsh
+# Mirror the one omp config file that CANNOT be symlinked into this repo.
+#
+# config.yml, themes/ and extensions/* are symlinked straight out of omp/
+# (see setup_omp_settings in install.sh). mcp.json cannot
+# be: its writer renders a temp file and rename()s it over the configured path
+# with no realpath() step (mcp/config-writer.ts), so the first mutation
+# targeting the user mcp.json — adding/removing a server, toggling one defined
+# there, or writing a disabledServers/enabledServers override for a server from
+# a non-writable source — replaces the link with a plain file and silently
+# detaches the backup. Which toggle does it is not predictable: setMcpServerEnabled
+# writes the first of sourcePath/projectPath/userPath that defines the server,
+# then still touches the user file to clear stale overrides.
+#
+# Only preference keys are copied. `mcpServers` entries carry `env`, `headers`,
+# `auth.clientSecret` and `oauth.clientSecret` (mcp/types.ts), so server
+# definitions are reported and dropped rather than written to git.
+#
+# NOT backed up: ~/.omp/agent/managed-skills. Those are model-generated bodies
+# persisted verbatim by autolearn — machine-local and work-specific, and
+# mirroring them would push unreviewed generated text into git.
+#
+# Usage:
+#   omp-config-backup            live -> repo (run before committing dotfiles)
+#   omp-config-backup --restore  repo -> live, only when the live file is absent
+#   omp-config-backup --check    report drift, exit 1 if any (no writes)
+
+set -e
+
+local live="$HOME/.omp/agent/mcp.json"
+local saved="${0:A:h:h}/omp/mcp.json"        # <repo>/omp/mcp.json
+
+local mode="backup"
+case "${1:-}" in
+  "")         ;;
+  --restore)  mode="restore" ;;
+  --check)    mode="check" ;;
+  *) print -u2 "usage: omp-config-backup [--restore|--check]"; exit 2 ;;
+esac
+
+local drift=0
+local -a scratch=()
+cleanup() {
+  (( $#scratch )) && rm -rf -- $scratch
+  scratch=()
+}
+# Idempotent, so the signal handlers may run it before the EXIT trap repeats it.
+trap cleanup EXIT
+trap 'cleanup; exit 130' INT
+trap 'cleanup; exit 143' TERM
+
+# Everything not on this allowlist is dropped, so a key added by a future omp
+# release is excluded until it is reviewed and named here.
+local MCP_FILTER='{"$schema": ."$schema", disabledServers, enabledServers}
+  | with_entries(select(.value != null))'
+
+# jq is only needed to project mcp.json down to its safe keys. Restoring an
+# already-sanitized snapshot is a plain copy, so it must not depend on jq.
+require_jq() {
+  command -v jq >/dev/null 2>&1 && return 0
+  print -u2 "⚠️  jq not found — mcp.json $mode skipped (needed to strip MCP server credentials)."
+  drift=1
+  return 1
+}
+
+# A symlink means an older install.sh linked the path. omp does not reject it —
+# its writer renames over the path, so the link silently becomes a regular file
+# and this backup detaches. Mirroring through it would also read back our own
+# output. Repair to the supported shape first.
+if [[ -L "$live" ]]; then
+  print -u2 "⚠️  $live is a symlink — omp replaces it with a regular file on its next write, detaching this backup. Replace it with a real copy:"
+  print -u2 "    rm '$live' && cp '$saved' '$live'"
+  exit 1
+fi
+
+case "$mode" in
+  backup)
+    require_jq || exit $drift
+    [[ -e "$live" ]] || { print -u2 "⚠️  $live missing — nothing to back up."; exit 0; }
+
+    local servers
+    if ! servers="$(jq -r '(.mcpServers // {}) | keys | join(", ")' "$live" 2>&1)"; then
+      print -u2 "⚠️  $live is not valid JSON — snapshot left unchanged: $servers"
+      exit 1
+    fi
+    [[ -n "$servers" ]] && print -u2 "ℹ️  mcp.json server definitions NOT backed up (may hold secrets): $servers"
+
+    # Render to a sibling temp and rename over the snapshot: a malformed input,
+    # failed write, or interrupt leaves the previous snapshot intact.
+    mkdir -p "${saved:h}"
+    local tmp
+    tmp="$(mktemp "$saved.XXXXXX")"
+    scratch+=("$tmp")
+    jq -S "$MCP_FILTER" "$live" > "$tmp"
+    # Belt and braces: never promote a payload carrying server definitions.
+    if ! jq -e 'type == "object" and (has("mcpServers") | not)' "$tmp" >/dev/null; then
+      print -u2 "⚠️  refusing to save mcp.json: projection kept server definitions."
+      exit 1
+    fi
+    chmod 644 "$tmp"
+    mv "$tmp" "$saved"
+    scratch=(${scratch:#$tmp})
+    print "✅ backed up mcp.json preferences"
+    ;;
+
+  restore)
+    # Never clobber local state; backup is the only overwriting direction.
+    if [[ -e "$live" ]]; then
+      print "✅ omp mcp.json already present."
+    elif [[ -e "$saved" ]]; then
+      mkdir -p "${live:h}"
+      cp "$saved" "$live"
+      print "✅ omp mcp.json restored from dotfiles."
+    fi
+    ;;
+
+  check)
+    require_jq || exit $drift
+    [[ -e "$live" ]] || exit 0
+    local projected
+    if ! projected="$(jq -S "$MCP_FILTER" "$live" 2>&1)"; then
+      print -u2 "⚠️  $live is not valid JSON — cannot compare: $projected"
+      exit 1
+    fi
+    if [[ "$projected" != "$(<"$saved")" ]]; then
+      print -u2 "⚠️  mcp.json preferences differ from the dotfiles copy — run omp-config-backup."
+      drift=1
+    fi
+    ;;
+esac
+
+exit $drift

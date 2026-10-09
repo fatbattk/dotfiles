@@ -1,5 +1,5 @@
 ME="$(whoami)"
-readonly ME
+# readonly ME  # re-sourcing ~/.zshrc (reload_zsh_profile/.reload) dies on "read-only variable: ME".
 
 # (start with a space to be ignored in history)
 alias sudo='sudo '  # enable simple aliases to be sudo'ed.
@@ -53,6 +53,9 @@ alias countr='ls -1|wc -l'	# number of files in dir + subdir.
 alias curld='curl -O '		# curl download remote name.
 
 # git overwrites.
+alias gfom='git fetch origin main'
+# `git pull --rebase` never honours rebase.autoSquash, so fetch + rebase explicitly.
+alias gpom='git fetch origin main && git rebase --autosquash origin/main'
 alias gb='git branch -vv'
 alias gbv='gb'
 alias gwtl='git worktree list'
@@ -150,21 +153,18 @@ line(){
 	# $1=line number, $2=file.
 	sed -n "$1{p;q}" $2
 }
-alias line=line
 
 # mass rename for same name but different extensions.
 rename1(){
 	# $1=from filename; $2=to filename.
 	for i in "$1".*; do mv "$i" "$2.${i##*.}"; done
 }
-alias rename1=rename1
 # mass rename to remove certain word.
 rename2(){
 	# $1=regex word. current directory only. non-recursive.
 	# eg- A_[xxx].zip B_[xxx].zip ==> rename2 '_\[xxx\]'  ==> A.zip B.zip
 	for a in *; do mv "$a" "${a/$1}"; done
 }
-alias rename2=rename2
 
 # remove .Zone-Identifier extension files. https://blog.realhe.ro/how-to-get-rid-of-zone-identifier-files/
 removeZID(){

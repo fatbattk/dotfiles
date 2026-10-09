@@ -9,6 +9,20 @@ export ZSH=$HOME/.oh-my-zsh
 # 'linux' = Linux
 export ZSH_HOST_OS=$(uname | awk '{print tolower($0)}')
 
+# Resolve dotfiles directory from this symlinked .zshrc.
+if [ -L "$HOME/.zshrc" ]; then
+  DOTFILES_DIR="$(dirname "$(readlink "$HOME/.zshrc")")"
+else
+  DOTFILES_DIR="$HOME/dotfiles"
+fi
+
+# Platform configs. Loaded before oh-my-zsh so its plugins (eza, fzf) see them.
+if [[ "$ZSH_HOST_OS" == "darwin" ]]; then
+  [ -f "$DOTFILES_DIR/mac.sh" ] && source "$DOTFILES_DIR/mac.sh"
+elif [[ "$ZSH_HOST_OS" == "linux" ]]; then
+  [ -f "$DOTFILES_DIR/linux.sh" ] && source "$DOTFILES_DIR/linux.sh"
+fi
+
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
@@ -110,6 +124,8 @@ fi
 # path config.
 add_path "$HOME/.yarn/bin"
 add_path "$HOME/.config/yarn/global/node_modules/.bin"
+add_path "$HOME/.local/bin"
+add_path "$DOTFILES_DIR/bin"
 
 # history config.
 export HISTFILE=~/.zsh_history
@@ -123,20 +139,6 @@ bindkey '\eOA' history-beginning-search-backward
 bindkey '\e[A' history-beginning-search-backward
 bindkey '\eOB' history-beginning-search-forward
 bindkey '\e[B' history-beginning-search-forward
-
-# Resolve dotfiles directory from this symlinked .zshrc.
-if [ -L "$HOME/.zshrc" ]; then
-  DOTFILES_DIR="$(dirname "$(readlink "$HOME/.zshrc")")"
-else
-  DOTFILES_DIR="$HOME/dotfiles"
-fi
-
-# tools config.
-[ -f "$DOTFILES_DIR/tools.sh" ] && source "$DOTFILES_DIR/tools.sh"
-# Mac specific configs.
-if [[ "$ZSH_HOST_OS" == "darwin" ]]; then
-  [ -f "$DOTFILES_DIR/mac.sh" ] && source "$DOTFILES_DIR/mac.sh"
-fi
 
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 if [ -s "$NVM_DIR/nvm.sh" ]; then

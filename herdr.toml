@@ -1,0 +1,36 @@
+onboarding = false
+
+[keys]
+new_tab = "cmd+t"
+
+[theme]
+name = "dracula"
+auto_switch = false
+
+[ui.toast]
+delivery = "terminal"
+
+[ui.toast.herdr]
+position = "top-right"
+
+[ui]
+show_agent_labels_on_pane_borders = true
+agent_panel_sort = "spaces"
+prompt_new_tab_name = false
+status_indicators = "symbols"
+
+[ui.sound]
+enabled = true
+[ui.sidebar.spaces]
+row_gap = 0
+
+# Agent panel row format. Built-in tokens: state_icon, state_text, workspace, tab,
+# pane, agent, terminal_title, terminal_title_stripped. Pane-reported custom values
+# use $name. Style any token with { token = "workspace", fg = "#89b4fa", bold = true }.
+[ui.sidebar.agents]
+row_gap = 0
+rows = [["state_icon", "terminal_title_stripped"], [{ token = "tab", bold = true, dim = false }, { token = "pane", dim = false }, "workspace"]]
+
+# Per-agent overrides replace the rows above for matching canonical agent IDs.
+# [ui.sidebar.agents.rows_by_agent]
+# claude = [["state_icon", "workspace", "tab"], ["terminal_title_stripped"], ["agent"]]

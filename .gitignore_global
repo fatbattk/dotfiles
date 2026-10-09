@@ -40,3 +40,7 @@ node_modules/
 # Misc
 .direnv/
 .tool-versions
+
+# AI agent local state (per-machine, never committed)
+.claude/settings.local.json
+.claude/settings.local.json.bak

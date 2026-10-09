@@ -8,3 +8,6 @@ macos-titlebar-style = tabs
 macos-icon = retro
 copy-on-select = clipboard
 keybind = shift+enter=text:\n
+
+# Let cmd+T reach the running app (herdr binds it to new_tab).
+keybind = super+t=unbind
